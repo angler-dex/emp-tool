@@ -28,6 +28,21 @@ class NetIO: public IOChannel<NetIO> { public:
 	bool has_sent = false;
 	string addr;
 	int port;
+
+    // stats
+    int num_tx=0;
+    int num_rx=0;
+    int size_tx=0;
+    int size_rx=0;
+
+    int global_num_tx=0;
+    int global_num_rx=0;
+    int global_size_tx=0;
+    int global_size_rx=0;
+
+    int num_flush=0;
+    int global_num_flush=0;
+
 	NetIO(const char * address, int port, bool quiet = false) {
 		this->port = port & 0xFFFF;
 		is_server = (address == nullptr);
@@ -111,13 +126,20 @@ class NetIO: public IOChannel<NetIO> { public:
 	}
 
 	void flush() {
+        num_flush++;
+        global_num_flush++;
 		fflush(stream);
 	}
 
 	void send_data_internal(const void * data, int len) {
+		num_tx ++;
+		global_num_tx ++;
+		size_tx += len;
+		global_size_tx += len;
 		int sent = 0;
 		while(sent < len) {
 			int res = fwrite(sent + (char*)data, 1, len - sent, stream);
+			//int res = write(consocket, sent + (char*)data, len - sent); // raw writes are slower
 			if (res >= 0)
 				sent+=res;
 			else
@@ -127,12 +149,17 @@ class NetIO: public IOChannel<NetIO> { public:
 	}
 
 	void recv_data_internal(void  * data, int len) {
-		if(has_sent)
-			fflush(stream);
+		num_rx ++;
+		global_num_rx ++;
+		size_rx += len;
+		global_size_rx += len;
+        // This flush slows down agmpc setup phase
+		//if(has_sent) fflush(stream);
 		has_sent = false;
 		int sent = 0;
 		while(sent < len) {
 			int res = fread(sent + (char*)data, 1, len - sent, stream);
+			//int res = read(consocket, sent + (char*)data, len - sent); // raw writes are slower
 			if (res >= 0)
 				sent += res;
 			else 

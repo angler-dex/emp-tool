@@ -62,7 +62,7 @@ int inline ThreadPool::size() const {
 inline ThreadPool::ThreadPool(size_t threads)
     :   stop(false)
 {
-    for(size_t i = 0;i<threads;++i)
+    for(size_t i = 0;i<threads;++i) {
         workers.emplace_back(
             [this]
             {
@@ -84,6 +84,13 @@ inline ThreadPool::ThreadPool(size_t threads)
                 }
             }
         );
+        //cpu_set_t cpuset;
+        //CPU_ZERO(&cpuset);
+        //CPU_SET(i, &cpuset);
+        //int rc = pthread_setaffinity_np(workers.back().native_handle(), sizeof(cpu_set_t), &cpuset);
+        //if (rc)
+        //    throw std::runtime_error("could not pin thread to cpu");
+    }
 }
 
 // add new work item to the pool

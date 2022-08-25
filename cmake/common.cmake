@@ -57,7 +57,7 @@ endif(NOT CMAKE_BUILD_TYPE)
 message(STATUS "${Blue}Build type: ${CMAKE_BUILD_TYPE}${ColourReset}")
 
 if (CMAKE_BUILD_TYPE MATCHES Debug)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -ggdb")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -ggdb -fno-omit-frame-pointer")
 message(STATUS "CXX Flags: ${CMAKE_CXX_FLAGS}")
 endif()
 
